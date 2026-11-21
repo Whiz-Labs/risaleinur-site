@@ -1,0 +1,188 @@
+---
+// Destino do QR code impresso no estande. Pensada para celular. Continua no
+// ar depois da feira (os QR impressos não somem): o texto de boas-vindas
+// serve nos dois casos.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Faixa from '../components/Faixa.astro';
+import Foto from '../components/Foto.astro';
+import Icon from '../components/Icon.astro';
+import { site, feira, instituicao, contact, whatsappHref } from '../config';
+
+const stand = feira.stand ? `Estande ${feira.stand}` : 'Estande a confirmar';
+const local = [stand, feira.venue, feira.city].filter(Boolean).join(' · ');
+const year = new Date().getFullYear();
+---
+
+<BaseLayout
+  title={`${site.name} na ${feira.name}`}
+  description={`Que bom ter você no nosso estande! Conheça a ${site.fullName}.`}
+>
+  <Faixa />
+  <main id="conteudo" class="feira">
+    <a href="/" class="feira-logo">
+      <img
+        src="/logo-horizontal.svg"
+        alt={`${site.name} – ${site.fullName}`}
+        width="158"
+        height="56"
+      />
+    </a>
+
+    <div class="feira-intro">
+      <span class="eyebrow">{feira.name}{feira.stand && ` · Estande ${feira.stand}`}</span>
+      <h1>Que bom ter você no nosso estande!</h1>
+      <p class="lead">
+        Somos a ARN, uma associação sem fins lucrativos dedicada à educação, à leitura e à
+        cultura a partir da coleção Risale-i Nur.
+      </p>
+    </div>
+
+    <Foto photo={feira.photo} hint="Foto: nosso estande / livros" height="200px" eager />
+
+    <div class="feira-ctas">
+      <a href={whatsappHref} class="btn btn-primary">
+        <Icon name="whatsapp" size={22} /> Fale conosco no WhatsApp
+      </a>
+      <a href={contact.instagram} class="btn btn-outline">
+        <Icon name="instagram" size={22} />
+        {contact.instagramHandle}
+      </a>
+      <a href="/" class="btn feira-btn-site">
+        Conheça a associação <Icon name="arrow" size={18} />
+      </a>
+    </div>
+
+    <div class="feira-info">
+      <h2>Na feira</h2>
+      <p><Icon name="calendar" size={20} /><span>{feira.shortName} · {feira.dateLabel}</span></p>
+      <p><Icon name="pin" size={20} /><span>{local}</span></p>
+    </div>
+
+    <div class="feira-dados">
+      <div class="feira-dados-body">
+        <span class="eyebrow feira-dados-tag">Dados institucionais</span>
+        <strong>{instituicao.razaoSocial}</strong>
+        <span>CNPJ {instituicao.cnpj}</span>
+        <span>{contact.address.city} – {contact.address.state} · Desde 2021</span>
+      </div>
+      <Faixa />
+    </div>
+  </main>
+  <footer class="feira-footer">© {year} {site.name} · risaleinur.org.br</footer>
+</BaseLayout>
+
+<style>
+  .feira {
+    max-width: 35rem;
+    margin: 0 auto;
+    padding: 1.75rem 1.375rem 2.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .feira-logo {
+    align-self: flex-start;
+  }
+
+  .feira-logo img {
+    height: 56px;
+    width: auto;
+  }
+
+  .feira-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .feira-intro .eyebrow {
+    font-size: 0.75rem;
+  }
+
+  .feira-intro h1 {
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+
+  .feira-ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .feira-ctas .btn {
+    min-height: 56px;
+    border-radius: 14px;
+    font-size: 1.0625rem;
+  }
+
+  .feira-btn-site {
+    background: var(--papel);
+    color: var(--tinta);
+  }
+
+  .feira-btn-site:hover {
+    background: var(--borda);
+    color: var(--tinta);
+  }
+
+  .feira-info {
+    background: var(--areia);
+    border-radius: var(--radius-card);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .feira-info h2 {
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  .feira-info p {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .feira-info svg {
+    flex: none;
+    margin-top: 3px;
+    color: var(--verde-escuro);
+  }
+
+  .feira-dados {
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+
+  .feira-dados-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    font-size: 0.9375rem;
+    color: var(--texto-suave);
+  }
+
+  .feira-dados-body strong {
+    color: var(--texto);
+    font-weight: 600;
+  }
+
+  .feira-dados-tag {
+    font-size: 0.75rem;
+    color: var(--texto-mudo);
+  }
+
+  .feira-footer {
+    background: var(--tinta);
+    color: var(--rodape-texto);
+    padding: 1.5rem 1.375rem;
+    font-size: 0.8125rem;
+    text-align: center;
+  }
+</style>

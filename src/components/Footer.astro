@@ -1,0 +1,83 @@
+---
+import Faixa from './Faixa.astro';
+import { site, instituicao, contact } from '../config';
+
+const year = new Date().getFullYear();
+const { address } = contact;
+---
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <img
+      src="/logo-horizontal-escuro.svg"
+      alt={`${site.name} – ${site.fullName}`}
+      width="180"
+      height="64"
+      loading="lazy"
+    />
+    <div class="footer-dados">
+      <strong>{instituicao.razaoSocial}</strong>
+      <span>CNPJ {instituicao.cnpj}</span>
+      <span>
+        {address.street && `${address.street} – `}{address.district}, {address.city} – {address.state}
+        · CEP {address.zip}
+      </span>
+      {contact.email && <a href={`mailto:${contact.email}`}>{contact.email}</a>}
+      <span>
+        <a href={`https://wa.me/${contact.whatsapp}`}>WhatsApp {contact.whatsappLabel}</a>
+        · <a href={contact.instagram}>Instagram {contact.instagramHandle}</a>
+      </span>
+    </div>
+  </div>
+  <div class="container footer-copy">
+    © {year} {site.name} · Associação privada sem fins lucrativos
+  </div>
+  <Faixa />
+</footer>
+
+<style>
+  .footer {
+    background: var(--tinta);
+    color: var(--rodape-texto);
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    padding-block: 3rem 2rem;
+  }
+
+  .footer-inner img {
+    height: 64px;
+    width: auto;
+  }
+
+  .footer-dados {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9375rem;
+  }
+
+  .footer-dados strong {
+    color: var(--branco);
+    font-weight: 600;
+  }
+
+  .footer a {
+    color: var(--rodape-texto);
+  }
+
+  .footer a:hover {
+    color: var(--branco);
+  }
+
+  .footer-copy {
+    padding-bottom: 1.75rem;
+    font-size: 0.8125rem;
+    color: #9aa59e;
+  }
+</style>

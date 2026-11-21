@@ -1,0 +1,156 @@
+---
+import Icon from './Icon.astro';
+import Faixa from './Faixa.astro';
+import { atividades, programaDomingo } from '../config';
+---
+
+<section id="atividades" class="section section--papel">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">O que fazemos</span>
+      <h2>Atividades</h2>
+    </div>
+
+    <ul class="ativ-grid">
+      {
+        atividades.map((a) => (
+          <li class="card ativ-card">
+            <span class:list={['ativ-icon', `ativ-icon--${a.tone}`]}>
+              <Icon name={a.icon} size={26} />
+            </span>
+            <h3>{a.title}</h3>
+            <p>{a.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="card domingo">
+      <div class="domingo-head">
+        <span class="eyebrow">{programaDomingo.eyebrow}</span>
+        <h3>{programaDomingo.title}</h3>
+        <p>{programaDomingo.text}</p>
+        <Faixa width="120px" />
+      </div>
+      <ol class="domingo-lista">
+        {
+          programaDomingo.schedule.map((s) => (
+            <li>
+              <span class="domingo-hora">{s.time}</span>
+              <span>{s.label}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ativ-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .ativ-card {
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .ativ-card h3 {
+    font-size: 1.25rem;
+  }
+
+  .ativ-card p {
+    font-size: 1rem;
+    color: var(--texto-suave);
+  }
+
+  .ativ-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ativ-icon--verde {
+    background: var(--verde-tinta);
+    color: var(--verde-escuro);
+  }
+
+  .ativ-icon--amarelo {
+    background: var(--amarelo-tinta);
+    color: var(--amarelo-texto);
+  }
+
+  .ativ-icon--azul {
+    background: var(--azul-tinta);
+    color: var(--azul);
+  }
+
+  .domingo {
+    padding: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1.5rem 3rem;
+  }
+
+  .domingo-head {
+    flex: 1 1 16rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .domingo-head h3 {
+    font-weight: 800;
+    font-size: 1.625rem;
+    line-height: 1.2;
+  }
+
+  .domingo-head p {
+    font-size: 1rem;
+    color: var(--texto-suave);
+  }
+
+  .domingo-lista {
+    flex: 2 1 30rem;
+    min-width: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0.25rem 2rem;
+  }
+
+  .domingo-lista li {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+    padding-block: 0.625rem;
+    border-bottom: 1px solid var(--borda);
+    font-size: 1rem;
+  }
+
+  .domingo-hora {
+    flex: none;
+    width: 4rem;
+    font-family: var(--font-title);
+    font-weight: 700;
+    color: var(--verde-escuro);
+  }
+
+  @media (max-width: 600px) {
+    .domingo {
+      padding: 1.5rem;
+    }
+  }
+</style>

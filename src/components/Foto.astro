@@ -1,0 +1,82 @@
+---
+// Foto com moldura arredondada. Sem foto (`photo` null) mostra um
+// placeholder honesto com a descrição do que vai ali — nunca foto de banco.
+import Icon from './Icon.astro';
+import type { Photo } from '../config';
+
+interface Props {
+  photo: Photo | null;
+  hint: string;
+  /** Altura do placeholder; com foto, a proporção vem de `aspect`. */
+  height?: string;
+  aspect?: string;
+  bg?: string;
+  eager?: boolean;
+  class?: string;
+}
+
+const {
+  photo,
+  hint,
+  height = '100%',
+  aspect,
+  bg = 'var(--placeholder)',
+  eager = false,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={['foto', !photo && 'foto--vazia', className]}
+  style={`--h:${height};--bg:${bg};${aspect ? `--aspect:${aspect};` : ''}`}
+>
+  {
+    photo ? (
+      <img
+        src={photo.src}
+        alt={photo.alt}
+        width={photo.width}
+        height={photo.height}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    ) : (
+      <div class="foto-hint">
+        <Icon name="image" size={40} strokeWidth={1.6} />
+        <span>{hint}</span>
+      </div>
+    )
+  }
+  <slot />
+</div>
+
+<style>
+  .foto {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    height: var(--h);
+    aspect-ratio: var(--aspect, auto);
+    background: var(--bg);
+  }
+
+  .foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .foto-hint {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 1rem;
+    text-align: center;
+    color: var(--texto-suave);
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+</style>

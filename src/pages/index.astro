@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Sobre from '../components/Sobre.astro';
+import Atividades from '../components/Atividades.astro';
+import Dados from '../components/Dados.astro';
+import Galeria from '../components/Galeria.astro';
+import Contato from '../components/Contato.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../config';
+---
+
+<BaseLayout title={`${site.name} – ${site.fullName}`}>
+  <Header />
+  <main id="conteudo">
+    <!-- Fundos alternam papel → branco; manter a ordem ao inserir seção nova. -->
+    <Hero />
+    <Sobre />
+    <Atividades />
+    <Dados />
+    <Galeria />
+    <Contato />
+  </main>
+  <Footer />
+</BaseLayout>

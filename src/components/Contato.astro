@@ -1,0 +1,162 @@
+---
+import Icon from './Icon.astro';
+import { contact, whatsappHref } from '../config';
+
+const { address } = contact;
+---
+
+<section id="contato" class="section">
+  <div class="container contato-inner">
+    <div class="contato-text">
+      <span class="eyebrow">Onde estamos</span>
+      <h2>Visite a nossa sede</h2>
+
+      <ul class="contato-lista">
+        <li>
+          <Icon name="pin" size={22} />
+          <span>
+            {address.street && <>{address.street} – </>}{address.district}<br />
+            {address.city} – {address.state}, CEP {address.zip}
+            {
+              contact.mapsLink && (
+                <>
+                  <br />
+                  <a href={contact.mapsLink} target="_blank" rel="noopener">Como chegar</a>
+                </>
+              )
+            }
+          </span>
+        </li>
+        <li>
+          <Icon name="clock" size={22} />
+          <span>{contact.hours}</span>
+        </li>
+        {
+          contact.email && (
+            <li>
+              <Icon name="mail" size={22} />
+              <a href={`mailto:${contact.email}`}>{contact.email}</a>
+            </li>
+          )
+        }
+      </ul>
+
+      <div class="contato-ctas">
+        <a href={whatsappHref} class="btn btn-primary" target="_blank" rel="noopener">
+          <Icon name="whatsapp" size={20} /> WhatsApp {contact.whatsappLabel}
+        </a>
+        <a href={contact.instagram} class="btn btn-outline" target="_blank" rel="noopener">
+          <Icon name="instagram" size={20} />
+          {contact.instagramHandle}
+        </a>
+      </div>
+    </div>
+
+    <div class="mapa">
+      {
+        contact.mapsEmbed ? (
+          <iframe
+            src={contact.mapsEmbed}
+            title="Mapa da sede da ARN"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          />
+        ) : (
+          <div class="mapa-vazio">
+            <Icon name="pin" size={40} strokeWidth={1.6} />
+            <span>O mapa entra aqui assim que o endereço completo for publicado.</span>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .contato-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+  }
+
+  .contato-text {
+    flex: 1 1 24rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.375rem;
+  }
+
+  .contato-lista {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .contato-lista li {
+    display: flex;
+    gap: 0.875rem;
+  }
+
+  .contato-lista svg {
+    flex: none;
+    margin-top: 3px;
+    color: var(--verde-escuro);
+  }
+
+  .contato-lista a {
+    font-weight: 600;
+  }
+
+  .contato-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 0.25rem;
+  }
+
+  .mapa {
+    flex: 1 1 32rem;
+    min-width: 0;
+    height: 420px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid #dce4de;
+    background: #e8eee9;
+  }
+
+  .mapa iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .mapa-vazio {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--texto-suave);
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .mapa-vazio svg {
+    color: var(--verde-escuro);
+  }
+
+  @media (max-width: 600px) {
+    .mapa {
+      height: 300px;
+    }
+
+    .contato-ctas .btn {
+      flex: 1 1 100%;
+    }
+  }
+</style>

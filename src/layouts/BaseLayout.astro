@@ -1,0 +1,323 @@
+---
+import { site } from '../config';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og-image.png', Astro.site);
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icon-64.png" type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content={site.fullName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="pt_BR" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#0B7A38" />
+    <meta name="generator" content={Astro.generator} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+    />
+  </head>
+  <body>
+    <a href="#conteudo" class="skip-link">Ir para o conteúdo</a>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ---------- Tokens ----------
+     Tirados da identidade visual (tuvalı "ARN – Risale-i Nur", prancha Cores).
+     Verde lidera; amarelo e azul são acentos — juntos ecoam a bandeira.
+
+     Regra de contraste: --verde (#14A84B) é cor de símbolo/preenchimento e NÃO
+     passa como texto em branco. Texto, link e botão usam --verde-escuro (5.4:1).
+     Amarelo nunca é texto sobre branco; para ícone amarelo em fundo claro use
+     --amarelo-texto. */
+  :root {
+    --font-title: 'Montserrat', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+    --verde: #14a84b;
+    --verde-escuro: #0b7a38;
+    --verde-hover: #09652e;
+    --verde-claro: #4cc870;
+    --verde-tinta: #e5f5ea;
+    --floresta: #0a3d26;
+
+    --amarelo: #f6c915;
+    --amarelo-texto: #8a6a00;
+    --amarelo-tinta: #fdf4d0;
+
+    --azul: #1b5fd6;
+    --azul-escuro: #0e3f9e;
+    --azul-tinta: #e3ecfb;
+
+    --tinta: #1f262d;
+    --texto: #1f262d;
+    --texto-suave: #3d4640;
+    --texto-mudo: #6b7670;
+    --rodape-texto: #d5dad6;
+
+    --branco: #ffffff;
+    --papel: #f7f9f6;
+    --areia: #fbf6e3;
+    --borda: #eef1ee;
+    --placeholder: #dce6df;
+
+    --max-width: 1200px;
+    --radius: 12px;
+    --radius-card: 20px;
+    --radius-lg: 24px;
+    --shadow: 0 1px 2px rgb(10 61 38 / 0.06), 0 8px 24px rgb(10 61 38 / 0.06);
+  }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--texto);
+    background: var(--branco);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  img {
+    height: auto;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  a {
+    color: var(--verde-escuro);
+  }
+
+  a:hover {
+    color: var(--verde-hover);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-title);
+    line-height: 1.15;
+    color: var(--tinta);
+  }
+
+  h1 {
+    font-weight: 800;
+    font-size: clamp(2.125rem, 5vw, 3.25rem);
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-weight: 800;
+    font-size: clamp(1.75rem, 3.6vw, 2.375rem);
+  }
+
+  h3 {
+    font-weight: 700;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--azul);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: var(--max-width);
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .section {
+    padding-block: clamp(3.5rem, 8vw, 5.5rem);
+  }
+
+  .section--papel {
+    background: var(--papel);
+  }
+
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 45rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .section-head p {
+    color: var(--texto-suave);
+  }
+
+  .eyebrow {
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--verde-escuro);
+  }
+
+  .lead {
+    color: var(--texto-suave);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 52px;
+    padding: 0 1.625rem;
+    border-radius: var(--radius);
+    border: 2px solid transparent;
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--verde-escuro);
+    color: var(--branco);
+  }
+
+  .btn-primary:hover {
+    background: var(--verde-hover);
+    color: var(--branco);
+  }
+
+  .btn-outline {
+    background: var(--branco);
+    color: var(--verde-escuro);
+    border-color: var(--verde-escuro);
+  }
+
+  .btn-outline:hover {
+    background: var(--verde-tinta);
+  }
+
+  .btn-amarelo {
+    background: var(--amarelo);
+    color: var(--tinta);
+  }
+
+  .btn-amarelo:hover {
+    background: #e8bb08;
+    color: var(--tinta);
+  }
+
+  .card {
+    background: var(--branco);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow);
+  }
+
+  /* Aviso de "ainda não temos isso" — onde o conteúdo real vai entrar. */
+  .empty-note {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px dashed #cbd3cd;
+    border-radius: var(--radius);
+    background: var(--papel);
+    color: var(--texto-suave);
+    font-size: 0.9375rem;
+  }
+
+  .empty-note svg {
+    flex-shrink: 0;
+    color: var(--verde-escuro);
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0;
+    z-index: 100;
+    background: var(--verde-escuro);
+    color: var(--branco);
+    padding: 0.65rem 1rem;
+    border-radius: 0 0 var(--radius) 0;
+  }
+
+  .skip-link:focus {
+    left: 0;
+    color: var(--branco);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

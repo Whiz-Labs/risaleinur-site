@@ -1,0 +1,71 @@
+---
+import Icon from './Icon.astro';
+import { galeria, contact } from '../config';
+---
+
+<section id="galeria" class="section section--papel">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Galeria</span>
+      <h2>Nossas atividades em fotos</h2>
+    </div>
+
+    {
+      galeria.length > 0 ? (
+        <ul class="galeria-grid">
+          {galeria.map((p) => (
+            <li>
+              <figure>
+                <img
+                  src={p.src}
+                  alt={p.alt}
+                  width={p.width}
+                  height={p.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption>{p.alt}</figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty-note">
+          <Icon name="image" size={22} />
+          <span>
+            As fotos das nossas aulas e encontros entram aqui em breve. Enquanto isso, acompanhe
+            no Instagram <a href={contact.instagram}>{contact.instagramHandle}</a>.
+          </span>
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .galeria-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16.25rem, 1fr));
+    gap: 1rem;
+  }
+
+  figure {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  figure img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 16px;
+    background: var(--placeholder);
+  }
+
+  figcaption {
+    font-size: 0.875rem;
+    color: var(--texto-suave);
+  }
+</style>

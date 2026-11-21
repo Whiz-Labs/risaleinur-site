@@ -1,0 +1,51 @@
+---
+// Faixa assinatura verde · amarelo · azul. Usada no topo da página, sob
+// títulos de seção, na base de cards e no rodapé.
+interface Props {
+  /** Altura em px. */
+  height?: number;
+  /** Largura CSS; omitido = 100%. Com largura, ganha cantos arredondados. */
+  width?: string;
+  class?: string;
+}
+
+const { height = 6, width, class: className = '' } = Astro.props;
+---
+
+<div
+  class:list={['faixa', width && 'faixa--curta', className]}
+  style={`--h:${height}px;${width ? `--w:${width};` : ''}`}
+  aria-hidden="true"
+>
+  <span></span><span></span><span></span>
+</div>
+
+<style>
+  .faixa {
+    display: flex;
+    height: var(--h);
+    width: var(--w, 100%);
+    flex-shrink: 0;
+  }
+
+  .faixa--curta {
+    border-radius: calc(var(--h) / 2);
+    overflow: hidden;
+  }
+
+  span {
+    flex: 1;
+  }
+
+  span:nth-child(1) {
+    background: var(--verde);
+  }
+
+  span:nth-child(2) {
+    background: var(--amarelo);
+  }
+
+  span:nth-child(3) {
+    background: var(--azul);
+  }
+</style>

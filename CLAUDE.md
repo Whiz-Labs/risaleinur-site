@@ -43,6 +43,12 @@ Adding photos: put files in `public/fotos/` and add `{ src, alt, width, height }
 (type `Photo`) to `hero.photo`, `sobre.photo`, `feira.photo` or `galeria`.
 Documents: PDFs in `public/docs/`, set `file: '/docs/x.pdf'`.
 
+**Hero** (`Hero.astro`): `hero.photo` full-bleed under a `--floresta` veil (text in white,
+yellow eyebrow/button), then a "estante" card with covers from `livros`, picked by title
+in `hero.estante.titulos` (middle one enlarged; empty list → no card). The card sits half
+over the photo, half over white. The current photo is only 960px wide; replace it with a
+≥1920px landscape shot when the association supplies one.
+
 **Tokens** are in `BaseLayout.astro` `:root`, taken from the original logo: green
 #2E9666, yellow #F2C066, navy #364570 (`--azul`).
 `--verde` is for the symbol/fills only (3.7:1) — text, links and buttons on white use

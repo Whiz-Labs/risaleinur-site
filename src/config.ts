@@ -32,6 +32,15 @@ export const hero = {
     height: 720,
   } as Photo | null,
   photoHint: 'Foto: grupo de estudo na sede',
+  /**
+   * Estante sob o hero (HeroCena): títulos de `livros.itens`, na ordem em que
+   * aparecem; o do meio fica em destaque. Lista vazia = sem estante.
+   */
+  estante: {
+    label: 'A coleção Risale-i Nur em português',
+    cta: 'Ver a coleção',
+    titulos: ['Os Lampejos', 'As Cartas', 'Alcorão', 'O Sinal Supremo', 'Os Frutos da Fé'],
+  },
 };
 
 export const sobre = {

@@ -45,5 +45,5 @@ Thin dark-green strip above the header linking to `/feira`
 claude.ai Design canvas "ARN – Risale-i Nur":
 https://claude.ai/artifact/QnuyKXpR5cPHfWke2dGDTk
 (page "1 · Marca": logo, colours, type, usage; page "2 · Website": home + `/feira`).
-The canvas logo/colours were a reinterpretation; the site uses the original logo (vectorised
-from the sign at the headquarters) and its colours: green #2E9666, yellow #F2C066, navy #364570.
+The canvas logo was a reinterpretation; the site uses the original logo (vectorised from the
+association's PNG) and its colours: green #06A757, yellow #FEC820, navy #04287C.

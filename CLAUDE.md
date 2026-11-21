@@ -12,9 +12,9 @@ to Netlify. Same conventions as `../mesquita-jp-site`.
 The project brief (goal, verified facts, page requirements) is in `brand.md`.
 The design source is the claude.ai Design canvas "ARN – Risale-i Nur"
 (https://claude.ai/artifact/QnuyKXpR5cPHfWke2dGDTk): page "1 · Marca" (logo, colours,
-type, usage) and "2 · Website" (home + `/feira` mobile page). The canvas' logo and colours
-are a reinterpretation and are **superseded**: the site now uses the original logo (see
-Logos) and its colours. Layout and type still follow the canvas.
+type, usage) and "2 · Website" (home + `/feira` mobile page). The canvas' logo is a
+reinterpretation and is **superseded**: the site uses the original logo (see Logos) and
+its colours. Layout and type still follow the canvas.
 
 The site is in **template stage**: board names, documents, email and fair stand details
 have not been supplied yet. Everything provisional is marked
@@ -49,10 +49,10 @@ in `hero.estante.titulos` (middle one enlarged; empty list → no card). The car
 over the photo, half over white. The current photo is only 960px wide; replace it with a
 ≥1920px landscape shot when the association supplies one.
 
-**Tokens** are in `BaseLayout.astro` `:root`, taken from the original logo: green
-#2E9666, yellow #F2C066, navy #364570 (`--azul`).
-`--verde` is for the symbol/fills only (3.7:1) — text, links and buttons on white use
-`--verde-escuro` (#1E7A50, 5.3:1). Yellow is never text on white; yellow icons on light
+**Tokens** are in `BaseLayout.astro` `:root`, taken from the original logo file: green
+#06A757, yellow #FEC820, navy #04287C (`--azul`).
+`--verde` is for the symbol/fills only (3.2:1) — text, links and buttons on white use
+`--verde-escuro` (#057A40, 5.4:1). Yellow is never text on white; yellow icons on light
 use `--amarelo-texto`. Fonts: Montserrat (titles, menu, buttons, labels) + Inter (body).
 
 **Faixa** (`Faixa.astro`) is the green·yellow·blue signature stripe: page top, under
@@ -63,13 +63,17 @@ diretoria/documentos when filled in) lives in `Footer.astro`. There is no separa
 section for it, by the client's choice.
 
 **Logos** in `public/`: `logo-horizontal.svg` (header), `logo-horizontal-escuro.svg`
-(footer / dark bg), `logo-vertical.svg`, `simbolo.svg`, `favicon.svg`. There is no vector
-original. These were vectorised (potrace) from a straight-on photo of the sign at the
-headquarters, after perspective correction. The symbol was mirrored about its axis so it is
-exactly symmetric. The colours were sampled from the photo and are approximate. The
-vertical version matches the sign. The horizontal lockup (symbol + text block at equal
-height) was composed from the same parts and does not exist on the sign. If the
-association ever supplies the original file (AI/PDF/SVG), replace these. PNG icons and
+(footer / dark bg), `logo-vertical.svg`, `simbolo.svg`, `favicon.svg`. The association
+supplied the original only as a 533×625 PNG (no vector), so these were vectorised with
+potrace. The text (ARN, subtitle, RISALE-I NUR) and the colours come from that PNG. The
+symbol's shape comes from a higher-resolution trace of the sign at the headquarters,
+perspective-corrected and mirrored to be exactly symmetric, then fitted to the PNG's
+symbol box (≈5% edge mismatch). Note: the sign was printed in a *different* typeface
+than the file, so don't use sign photos as a reference for the text. The vertical version
+follows the file's layout. The horizontal lockup (symbol + text block at equal height) is
+composed from the same parts. In `logo-horizontal-escuro.svg` the navy shape has a thin
+white outline, because navy on the dark footer is 1.2:1. If a vector original (AI/PDF/SVG)
+turns up, replace these. PNG icons and
 `og-image.png` were generated from the SVGs with sharp. There's no script for this in the
 repo. `sharp` is already in `node_modules` as an Astro dependency, so a one-off Node script
 works.

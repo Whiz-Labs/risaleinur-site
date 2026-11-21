@@ -33,7 +33,7 @@ const ogImage = new URL('/og-image.png', Astro.site);
     <meta property="og:locale" content="pt_BR" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <meta name="theme-color" content="#1E7A50" />
+    <meta name="theme-color" content="#057A40" />
     <meta name="generator" content={Astro.generator} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -64,32 +64,32 @@ const ogImage = new URL('/og-image.png', Astro.site);
   }
 
   /* ---------- Tokens ----------
-     Tirados do logo original (a placa da sede): verde #2E9666, amarelo
-     #F2C066 e azul-marinho #364570. Verde lidera; amarelo e azul são acentos.
+     Tirados do arquivo do logo original: verde #06A757, amarelo #FEC820 e
+     azul-marinho #04287C. Verde lidera; amarelo e azul são acentos.
 
-     Regra de contraste: --verde (#2E9666) é cor de símbolo/preenchimento e NÃO
-     passa como texto em branco (3.7:1). Texto, link e botão usam --verde-escuro
-     (5.3:1).
+     Regra de contraste: --verde (#06A757) é cor de símbolo/preenchimento e NÃO
+     passa como texto em branco (3.2:1). Texto, link e botão usam --verde-escuro
+     (5.4:1).
      Amarelo nunca é texto sobre branco; para ícone amarelo em fundo claro use
      --amarelo-texto. */
   :root {
     --font-title: 'Montserrat', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 
-    --verde: #2e9666;
-    --verde-escuro: #1e7a50;
-    --verde-hover: #165e3e;
-    --verde-claro: #5cb88c;
-    --verde-tinta: #e4f2eb;
-    --floresta: #123d2a;
+    --verde: #06a757;
+    --verde-escuro: #057a40;
+    --verde-hover: #04632f;
+    --verde-claro: #4cc47f;
+    --verde-tinta: #e3f5ea;
+    --floresta: #0a3d26;
 
-    --amarelo: #f2c066;
-    --amarelo-texto: #8a6420;
-    --amarelo-tinta: #fcf2dd;
+    --amarelo: #fec820;
+    --amarelo-texto: #8a6500;
+    --amarelo-tinta: #fff6d6;
 
-    --azul: #364570;
-    --azul-escuro: #25305a;
-    --azul-tinta: #e6e9f2;
+    --azul: #04287c;
+    --azul-escuro: #031d5c;
+    --azul-tinta: #e5eaf5;
 
     --tinta: #1f262d;
     --texto: #1f262d;
@@ -107,7 +107,7 @@ const ogImage = new URL('/og-image.png', Astro.site);
     --radius: 12px;
     --radius-card: 20px;
     --radius-lg: 24px;
-    --shadow: 0 1px 2px rgb(18 61 42 / 0.06), 0 8px 24px rgb(18 61 42 / 0.06);
+    --shadow: 0 1px 2px rgb(10 61 38 / 0.06), 0 8px 24px rgb(10 61 38 / 0.06);
   }
 
   html {

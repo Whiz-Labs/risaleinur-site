@@ -33,7 +33,7 @@ const ogImage = new URL('/og-image.png', Astro.site);
     <meta property="og:locale" content="pt_BR" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <meta name="theme-color" content="#0B7A38" />
+    <meta name="theme-color" content="#1E7A50" />
     <meta name="generator" content={Astro.generator} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -41,6 +41,11 @@ const ogImage = new URL('/og-image.png', Astro.site);
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+    />
+    <!-- Amiri só para os nomes árabes das orações: `text=` baixa apenas esses glifos. -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Amiri&text=%D8%A7%D9%84%D9%81%D8%AC%D8%B1%D8%B8%D9%87%D8%B9%D8%B5%D9%85%D8%BA%D8%A8%D8%B4%D8%A1&display=swap"
     />
   </head>
   <body>
@@ -59,31 +64,32 @@ const ogImage = new URL('/og-image.png', Astro.site);
   }
 
   /* ---------- Tokens ----------
-     Tirados da identidade visual (tuvalı "ARN – Risale-i Nur", prancha Cores).
-     Verde lidera; amarelo e azul são acentos — juntos ecoam a bandeira.
+     Tirados do logo original (a placa da sede): verde #2E9666, amarelo
+     #F2C066 e azul-marinho #364570. Verde lidera; amarelo e azul são acentos.
 
-     Regra de contraste: --verde (#14A84B) é cor de símbolo/preenchimento e NÃO
-     passa como texto em branco. Texto, link e botão usam --verde-escuro (5.4:1).
+     Regra de contraste: --verde (#2E9666) é cor de símbolo/preenchimento e NÃO
+     passa como texto em branco (3.7:1). Texto, link e botão usam --verde-escuro
+     (5.3:1).
      Amarelo nunca é texto sobre branco; para ícone amarelo em fundo claro use
      --amarelo-texto. */
   :root {
     --font-title: 'Montserrat', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 
-    --verde: #14a84b;
-    --verde-escuro: #0b7a38;
-    --verde-hover: #09652e;
-    --verde-claro: #4cc870;
-    --verde-tinta: #e5f5ea;
-    --floresta: #0a3d26;
+    --verde: #2e9666;
+    --verde-escuro: #1e7a50;
+    --verde-hover: #165e3e;
+    --verde-claro: #5cb88c;
+    --verde-tinta: #e4f2eb;
+    --floresta: #123d2a;
 
-    --amarelo: #f6c915;
-    --amarelo-texto: #8a6a00;
-    --amarelo-tinta: #fdf4d0;
+    --amarelo: #f2c066;
+    --amarelo-texto: #8a6420;
+    --amarelo-tinta: #fcf2dd;
 
-    --azul: #1b5fd6;
-    --azul-escuro: #0e3f9e;
-    --azul-tinta: #e3ecfb;
+    --azul: #364570;
+    --azul-escuro: #25305a;
+    --azul-tinta: #e6e9f2;
 
     --tinta: #1f262d;
     --texto: #1f262d;
@@ -101,7 +107,7 @@ const ogImage = new URL('/og-image.png', Astro.site);
     --radius: 12px;
     --radius-card: 20px;
     --radius-lg: 24px;
-    --shadow: 0 1px 2px rgb(10 61 38 / 0.06), 0 8px 24px rgb(10 61 38 / 0.06);
+    --shadow: 0 1px 2px rgb(18 61 42 / 0.06), 0 8px 24px rgb(18 61 42 / 0.06);
   }
 
   html {

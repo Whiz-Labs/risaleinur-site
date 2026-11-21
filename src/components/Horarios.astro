@@ -1,0 +1,459 @@
+---
+import Icon from './Icon.astro';
+import Faixa from './Faixa.astro';
+import { oracao, contact } from '../config';
+
+// Os horários são calculados no navegador pela API pública Aladhan
+// (api.aladhan.com), porque o site é estático: se fossem gerados no build,
+// congelariam no dia do deploy. O HTML já vem com a estrutura pronta e
+// placeholders "--:--", então a página não pula quando os dados chegam.
+const cfg = {
+  lat: oracao.latitude,
+  lng: oracao.longitude,
+  method: oracao.calculationMethod,
+  tz: oracao.timezone,
+};
+---
+
+<!-- Faixa escura de propósito: fica entre Atividades e Galeria (as duas em
+     papel) sem quebrar a alternância de fundos das outras seções. -->
+<section id="horarios" class="section horarios">
+  <div class="container">
+    <div class="hor-head">
+      <div class="section-head">
+        <span class="eyebrow">Horários de oração</span>
+        <h2>Hoje em {oracao.city}</h2>
+        <p class="hor-date">
+          <span id="pt-date">—</span>
+          <span class="hor-hijri" id="pt-hijri"></span>
+        </p>
+        <Faixa width="120px" />
+      </div>
+
+      <div class="hor-next" id="pt-next-card" hidden>
+        <span class="hor-next-label">Próxima oração</span>
+        <strong id="pt-next-name">—</strong>
+        <span class="hor-next-count" id="pt-next-count">—</span>
+      </div>
+    </div>
+
+    <ul class="hor-grid" id="pt-grid">
+      {
+        oracao.prayers.map((p) => (
+          <li class="hor-card" data-prayer={p.key}>
+            <span class="hor-name">
+              {p.key}
+              <span class="hor-ar" lang="ar" dir="rtl">
+                {p.ar}
+              </span>
+            </span>
+            <span class="hor-time" data-time>
+              --:--
+            </span>
+            <span class="hor-note">{p.note}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="hor-error" id="pt-error" hidden>
+      Não foi possível carregar os horários agora. Tente recarregar a página.
+    </p>
+
+    <div class="hor-aviso">
+      <Icon name="info" size={22} />
+      <p>
+        Horários calculados para {oracao.city}, para você rezar onde estiver. Não são
+        horários de funcionamento — a sede abre {contact.hours.charAt(0).toLowerCase() +
+          contact.hours.slice(1)}.
+      </p>
+    </div>
+
+    <p class="hor-foot">
+      Cálculo por{' '}
+      <a href="https://aladhan.com" target="_blank" rel="noopener">Aladhan</a>, método{' '}
+      {oracao.calculationLabel}. O horário pode variar um ou dois minutos em relação a
+      outros calendários.
+    </p>
+  </div>
+</section>
+
+<script is:inline define:vars={{ cfg }}>
+  (function () {
+    var grid = document.getElementById('pt-grid');
+    var errorEl = document.getElementById('pt-error');
+    var nextCard = document.getElementById('pt-next-card');
+    var nextName = document.getElementById('pt-next-name');
+    var nextCount = document.getElementById('pt-next-count');
+    var dateEl = document.getElementById('pt-date');
+    var hijriEl = document.getElementById('pt-hijri');
+    if (!grid) return;
+
+    var ORDER = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
+    // "05:12 (-03)" -> 312 (minutos desde a meia-noite).
+    function toMinutes(raw) {
+      var m = /(\d{1,2}):(\d{2})/.exec(String(raw || ''));
+      if (!m) return null;
+      return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+    }
+
+    function hhmm(raw) {
+      var m = /(\d{1,2}):(\d{2})/.exec(String(raw || ''));
+      return m ? (m[1].length === 1 ? '0' : '') + m[1] + ':' + m[2] : '--:--';
+    }
+
+    // O relógio que importa é o de São Paulo, não o de quem visita: alguém
+    // olhando de outro fuso precisa ver a contagem até a oração em São Paulo.
+    function nowLocal() {
+      var parts = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: cfg.tz,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      }).formatToParts(new Date());
+      var v = {};
+      parts.forEach(function (p) {
+        v[p.type] = p.value;
+      });
+      var h = parseInt(v.hour, 10) % 24;
+      return h * 3600 + parseInt(v.minute, 10) * 60 + parseInt(v.second, 10);
+    }
+
+    // dd-mm-aaaa no fuso da sede — depois da meia-noite lá, o dia vira.
+    function dateKey() {
+      return new Intl.DateTimeFormat('en-GB', {
+        timeZone: cfg.tz,
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+        .format(new Date())
+        .replace(/\//g, '-');
+    }
+
+    var WEEKDAYS = {
+      Sunday: 'Domingo',
+      Monday: 'Segunda-feira',
+      Tuesday: 'Terça-feira',
+      Wednesday: 'Quarta-feira',
+      Thursday: 'Quinta-feira',
+      Friday: 'Sexta-feira',
+      Saturday: 'Sábado',
+    };
+
+    function formatDate(g) {
+      var dmy = String(g.date || '').split('-');
+      var d = new Date(Date.UTC(+dmy[2], +dmy[1] - 1, +dmy[0]));
+      var label = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'UTC',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }).format(d);
+      var wd = WEEKDAYS[g.weekday && g.weekday.en] || '';
+      return wd ? wd + ', ' + label : label;
+    }
+
+    function render(data) {
+      var timings = data.timings || {};
+      var minutes = {};
+
+      grid.querySelectorAll('[data-prayer]').forEach(function (card) {
+        var key = card.getAttribute('data-prayer');
+        var el = card.querySelector('[data-time]');
+        if (el) el.textContent = hhmm(timings[key]);
+        minutes[key] = toMinutes(timings[key]);
+      });
+
+      if (data.date) {
+        if (dateEl && data.date.gregorian && data.date.gregorian.date) {
+          dateEl.textContent = formatDate(data.date.gregorian);
+        }
+        if (hijriEl && data.date.hijri) {
+          var h = data.date.hijri;
+          hijriEl.textContent = h.day + ' ' + h.month.en + ' ' + h.year + ' AH';
+        }
+      }
+
+      tick(minutes);
+      setInterval(function () {
+        tick(minutes);
+      }, 30000);
+    }
+
+    function tick(minutes) {
+      var nowSec = nowLocal();
+      var next = null;
+      var past = {};
+
+      for (var i = 0; i < ORDER.length; i++) {
+        var key = ORDER[i];
+        var m = minutes[key];
+        if (m == null) continue;
+        if (m * 60 <= nowSec) past[key] = true;
+        else if (!next) next = key;
+      }
+
+      grid.querySelectorAll('[data-prayer]').forEach(function (card) {
+        var k = card.getAttribute('data-prayer');
+        card.classList.toggle('is-next', k === next);
+        card.classList.toggle('is-past', !!past[k]);
+      });
+
+      if (!nextCard || minutes[ORDER[0]] == null) return;
+
+      // Depois do Isha a próxima é o Fajr de amanhã: soma 24h ao alvo em vez
+      // de esconder a contagem, senão o card fica vazio a noite inteira.
+      var targetKey = next || ORDER[0];
+      var targetSec = minutes[targetKey] * 60 + (next ? 0 : 24 * 3600);
+      var diff = targetSec - nowSec;
+      if (diff < 0) diff += 24 * 3600;
+
+      var h = Math.floor(diff / 3600);
+      var mnt = Math.floor((diff % 3600) / 60);
+      nextCard.hidden = false;
+      if (nextName) nextName.textContent = targetKey;
+      if (nextCount) {
+        nextCount.textContent =
+          h > 0 ? 'em ' + h + 'h ' + mnt + 'min' : 'em ' + Math.max(mnt, 1) + ' min';
+      }
+    }
+
+    function fail() {
+      if (errorEl) errorEl.hidden = false;
+    }
+
+    var key = dateKey();
+    var cacheId = 'pt_' + key + '_' + cfg.method;
+
+    // Um dia de horários cabe no localStorage; recarregar não bate na API.
+    try {
+      var cached = localStorage.getItem(cacheId);
+      if (cached) {
+        render(JSON.parse(cached));
+        return;
+      }
+    } catch (e) {
+      /* storage bloqueado — segue pela rede */
+    }
+
+    var url =
+      'https://api.aladhan.com/v1/timings/' +
+      key +
+      '?latitude=' + cfg.lat +
+      '&longitude=' + cfg.lng +
+      '&method=' + cfg.method +
+      '&timezonestring=' + encodeURIComponent(cfg.tz);
+
+    fetch(url)
+      .then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      })
+      .then(function (json) {
+        if (!json || !json.data || !json.data.timings) throw new Error('payload');
+        try {
+          localStorage.setItem(cacheId, JSON.stringify(json.data));
+        } catch (e) {
+          /* ignore */
+        }
+        render(json.data);
+      })
+      .catch(fail);
+  })();
+</script>
+
+<style>
+  .horarios {
+    background: var(--floresta);
+    color: var(--branco);
+  }
+
+  .horarios h2 {
+    color: var(--branco);
+  }
+
+  .horarios .eyebrow {
+    color: var(--amarelo);
+  }
+
+  .hor-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .hor-head .section-head {
+    margin-bottom: 0;
+  }
+
+  .hor-date {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    font-size: 0.9375rem;
+  }
+
+  .horarios .hor-date {
+    color: var(--rodape-texto);
+  }
+
+  .hor-hijri {
+    color: var(--amarelo);
+    font-weight: 600;
+  }
+
+  .hor-next {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 12rem;
+    padding: 0.9rem 1.4rem;
+    border-radius: var(--radius);
+    background: var(--amarelo);
+    color: var(--tinta);
+  }
+
+  .hor-next-label {
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .hor-next strong {
+    font-family: var(--font-title);
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+
+  .hor-next-count {
+    font-size: 0.9375rem;
+  }
+
+  .hor-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.85rem;
+  }
+
+  .hor-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.15rem 1rem;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: var(--radius);
+    background: rgb(255 255 255 / 0.06);
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .hor-card.is-next {
+    border-color: var(--amarelo);
+    background: rgb(242 192 102 / 0.14);
+  }
+
+  .hor-card.is-past {
+    opacity: 0.55;
+  }
+
+  .hor-name {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+
+  .hor-ar {
+    font-family: 'Amiri', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--rodape-texto);
+    unicode-bidi: isolate;
+  }
+
+  .hor-time {
+    font-family: var(--font-title);
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hor-note {
+    font-size: 0.8125rem;
+    color: var(--rodape-texto);
+  }
+
+  .hor-error {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius);
+    background: var(--amarelo-tinta);
+    color: var(--tinta);
+    font-size: 0.9375rem;
+  }
+
+  .hor-aviso {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    margin-top: 1.5rem;
+    padding: 1.15rem 1.35rem;
+    border-radius: var(--radius);
+    border: 1px solid rgb(255 255 255 / 0.14);
+    font-size: 0.9375rem;
+    color: var(--rodape-texto);
+  }
+
+  .hor-aviso :global(svg) {
+    color: var(--amarelo);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .hor-foot {
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    color: var(--rodape-texto);
+  }
+
+  .hor-foot a {
+    color: var(--branco);
+  }
+
+  @media (max-width: 900px) {
+    .hor-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 460px) {
+    .hor-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .hor-card {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .hor-time {
+      font-size: 1.4rem;
+    }
+  }
+</style>

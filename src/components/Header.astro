@@ -13,7 +13,7 @@ const { faixaFeira = true } = Astro.props;
 const links = [
   { href: '/#sobre', label: 'Quem somos' },
   { href: '/#atividades', label: 'Atividades' },
-  { href: '/#dados', label: 'Dados institucionais' },
+  { href: '/#horarios', label: 'Orações' },
   { href: '/#galeria', label: 'Galeria' },
   { href: '/#livros', label: 'Livros' },
 ];
@@ -53,7 +53,7 @@ const standLabel = feira.stand ? `Estande ${feira.stand}` : '';
       <img
         src="/logo-horizontal.svg"
         alt={`${site.name} – ${site.fullName}`}
-        width="158"
+        width="208"
         height="56"
       />
     </a>

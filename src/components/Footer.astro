@@ -1,23 +1,27 @@
 ---
 import Faixa from './Faixa.astro';
-import { site, instituicao, contact } from '../config';
+import Icon from './Icon.astro';
+import { site, instituicao, diretoria, documentos, contact } from '../config';
 
 const year = new Date().getFullYear();
 const { address } = contact;
+
+// Os dados institucionais ficam no rodapé, não numa seção própria. Diretoria
+// e documentos são opcionais: só aparecem quando há dado real.
+const nomes = diretoria.filter((d) => d.nome);
+const docs = documentos.filter((d): d is { title: string; file: string } => Boolean(d.file));
 ---
 
 <footer class="footer">
   <div class="container footer-inner">
-    <img
-      src="/logo-horizontal-escuro.svg"
-      alt={`${site.name} – ${site.fullName}`}
-      width="180"
-      height="64"
-      loading="lazy"
-    />
-    <div class="footer-dados">
-      <strong>{instituicao.razaoSocial}</strong>
-      <span>CNPJ {instituicao.cnpj}</span>
+    <div class="footer-col">
+      <img
+        src="/logo-horizontal-escuro.svg"
+        alt={`${site.name} – ${site.fullName}`}
+        width="237"
+        height="64"
+        loading="lazy"
+      />
       <span>
         {address.street && `${address.street} – `}{address.district}, {address.city} – {address.state}
         · CEP {address.zip}
@@ -27,6 +31,40 @@ const { address } = contact;
         <a href={`https://wa.me/${contact.whatsapp}`}>WhatsApp {contact.whatsappLabel}</a>
         · <a href={contact.instagram}>Instagram {contact.instagramHandle}</a>
       </span>
+    </div>
+
+    <div class="footer-col">
+      <h2 class="footer-titulo">Dados institucionais</h2>
+      <strong>{instituicao.razaoSocial}</strong>
+      <span>
+        CNPJ {instituicao.cnpj} ·{' '}
+        <a class="nowrap" href={instituicao.consultaUrl} target="_blank" rel="noopener">
+          Consultar na Receita Federal <Icon name="external" size={13} />
+        </a>
+      </span>
+      <span>
+        {instituicao.naturezaJuridica} · Fundada em {instituicao.fundacao}
+        {instituicao.situacao && ` · Situação: ${instituicao.situacao}`}
+      </span>
+      {
+        nomes.length > 0 && (
+          <span>Diretoria: {nomes.map((d) => `${d.nome} (${d.cargo})`).join(' · ')}</span>
+        )
+      }
+      {
+        docs.length > 0 && (
+          <span>
+            {docs.map((d, i) => (
+              <>
+                {i > 0 && ' · '}
+                <a href={d.file} target="_blank" rel="noopener">
+                  {d.title} (PDF)
+                </a>
+              </>
+            ))}
+          </span>
+        )
+      }
     </div>
   </div>
   <div class="container footer-copy">
@@ -46,23 +84,36 @@ const { address } = contact;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 2rem;
+    gap: 2rem 3rem;
     padding-block: 3rem 2rem;
   }
 
-  .footer-inner img {
-    height: 64px;
-    width: auto;
-  }
-
-  .footer-dados {
+  .footer-col {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    max-width: 34rem;
     font-size: 0.9375rem;
   }
 
-  .footer-dados strong {
+  .footer-col img {
+    height: 64px;
+    width: auto;
+    align-self: flex-start;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-titulo {
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amarelo);
+    margin-bottom: 0.4rem;
+  }
+
+  .footer-col strong {
     color: var(--branco);
     font-weight: 600;
   }
@@ -73,6 +124,15 @@ const { address } = contact;
 
   .footer a:hover {
     color: var(--branco);
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  .footer a :global(svg) {
+    display: inline;
+    vertical-align: -1px;
   }
 
   .footer-copy {

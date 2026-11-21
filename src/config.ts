@@ -105,6 +105,37 @@ export const programaDomingo = {
   ],
 };
 
+/**
+ * Horários de oração, calculados no navegador pela API pública Aladhan
+ * (api.aladhan.com) — um build estático congelaria os horários no dia do
+ * deploy. Não é um horário de funcionamento: a sede abre só no `contact.hours`.
+ */
+export const oracao = {
+  city: 'São Paulo',
+  /**
+   * Rua da Imprensa (Ipiranga), pelo OpenStreetMap — ponto da rua, não do
+   * número 373. Dentro de São Paulo a diferença é de segundos.
+   */
+  latitude: -23.5885,
+  longitude: -46.6164,
+  timezone: 'America/Sao_Paulo',
+  /**
+   * Método de cálculo da Aladhan API.
+   * 3 = Muslim World League (padrão comum no Brasil).
+   * 2 = ISNA, 4 = Umm al-Qura, 5 = Egyptian.
+   */
+  calculationMethod: 3,
+  calculationLabel: 'Muslim World League',
+  /** As cinco orações, na ordem, com a chave devolvida pela Aladhan API. */
+  prayers: [
+    { key: 'Fajr', ar: 'الفجر', note: 'Alvorada' },
+    { key: 'Dhuhr', ar: 'الظهر', note: 'Meio-dia' },
+    { key: 'Asr', ar: 'العصر', note: 'Tarde' },
+    { key: 'Maghrib', ar: 'المغرب', note: 'Pôr do sol' },
+    { key: 'Isha', ar: 'العشاء', note: 'Noite' },
+  ],
+} as const;
+
 /** Dados de registro — conferíveis na Receita Federal. */
 export const instituicao = {
   razaoSocial: 'Associação Educacional e Cultural Risale-i Nur',
@@ -213,13 +244,18 @@ export const livros: {
   ],
 };
 
+/** Endereço da sede, usado no mapa e no link "Como chegar". */
+const mapsQuery = encodeURIComponent(
+  'Rua da Imprensa, 373 - Vila São José, São Paulo - SP, 04265-000, Brasil',
+);
+
 export const contact = {
   /**
-   * TODO: rua e número. Enquanto `street` estiver vazio, o site mostra só
-   * bairro/cidade/CEP — nunca um endereço pela metade com marcador.
+   * Vazio `street` = o site mostra só bairro/cidade/CEP, nunca um endereço
+   * pela metade com marcador.
    */
   address: {
-    street: '',
+    street: 'Rua da Imprensa, 373',
     district: 'Vila São José (Ipiranga)',
     city: 'São Paulo',
     state: 'SP',
@@ -237,10 +273,13 @@ export const contact = {
    * nenhum. Preenchido, aparece sozinho no contato e no rodapé.
    */
   email: '',
-  /** TODO: Google Maps → Compartilhar → Incorporar → só o `src`. Vazio = aviso. */
-  mapsEmbed: '',
-  /** TODO: link "como chegar" da ficha no Google Maps. */
-  mapsLink: '',
+  /**
+   * `src` do iframe do mapa (vazio = aviso). Gerado pela busca do endereço;
+   * pode ser trocado pelo `src` de Google Maps → Compartilhar → Incorporar.
+   */
+  mapsEmbed: `https://www.google.com/maps?q=${mapsQuery}&output=embed`,
+  /** Link "Como chegar". */
+  mapsLink: `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`,
 };
 
 export const whatsappHref = `https://wa.me/${contact.whatsapp}`;

@@ -48,6 +48,11 @@ Gallery tiles crop to 220px high (cover); for a portrait photo that must stay wh
 original angle; aspect set so the symbol matches `simbolo.svg`; slightly warm white
 balance, no extra sharpening). A fully frontal, sharpened, pure-white version looked
 like a digital mockup, so keep edits on real photos light.
+`fachada-sede.jpg` (Sobre) is the client's AI-enhanced facade image from `.claude/images/`
+(sky, tree and light are AI). The AI had invented a street name on the number plate
+("Rua da Independência"; another version says "Rua da Inspiração"). The real address is
+Rua da Imprensa, 373. That line was painted over in the plate's colour, leaving only
+"373". Check any new AI-edited photo for invented text before using it.
 Documents: PDFs in `public/docs/`, set `file: '/docs/x.pdf'`.
 
 **Hero** (`Hero.astro`): background slider from `hero.slides`. The text stays fixed on the

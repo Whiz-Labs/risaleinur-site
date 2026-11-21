@@ -73,8 +73,8 @@ export const sobre = {
   photo: {
     src: '/fotos/fachada-sede.jpg',
     alt: 'Fachada da sede da ARN, com a placa da associação e a porta de entrada',
-    width: 968,
-    height: 711,
+    width: 1536,
+    height: 1024,
   } as Photo | null,
   photoHint: 'Foto: fachada da sede',
 };

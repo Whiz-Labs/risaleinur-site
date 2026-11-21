@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import ContatoForm from './ContatoForm.astro';
 import { contact, whatsappHref } from '../config';
 
 const { address } = contact;
@@ -69,6 +70,9 @@ const { address } = contact;
         )
       }
     </div>
+  </div>
+  <div class="container">
+    <ContatoForm />
   </div>
 </section>
 

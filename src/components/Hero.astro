@@ -1,20 +1,80 @@
 ---
-// Hero "de cena": foto de fundo em tela cheia, véu --floresta para o texto,
-// e uma estante de capas reais (de `livros`) que fica metade sobre a foto e
-// metade sobre o branco. Inspirado numa referência enviada pelo cliente, mas
-// nas cores/tipos do site.
+// Hero com slider de fundo (`hero.slides`): o texto fica fixo à esquerda,
+// sobre um véu --floresta; atrás dele trocam fotos e um slide de capas da
+// coleção. Inspirado numa referência enviada pelo cliente, nas cores/tipos
+// do site. A coleção completa fica na seção Livros (#livros).
 import Faixa from './Faixa.astro';
 import { hero, livros } from '../config';
 
-const capas = hero.estante.titulos
-  .map((t) => livros.itens.find((i) => i.title === t))
-  .filter((i): i is (typeof livros.itens)[number] => Boolean(i));
-const meio = Math.floor(capas.length / 2);
+type Item = (typeof livros.itens)[number];
+// Capa sem fundo: mesmo nome da .jpg, em /livros/sem-fundo/*.webp.
+const semFundo = (cover: string) => cover.replace(/^\/livros\/(.+)\.jpg$/, '/livros/sem-fundo/$1.webp');
+
+const slides = hero.slides.map((s) => {
+  if (s.tipo === 'foto') return s;
+  const capas = s.titulos
+    .map((t) => livros.itens.find((i) => i.title === t))
+    .filter((i): i is Item => Boolean(i));
+  return { ...s, capas, meio: Math.floor(capas.length / 2) };
+});
+const total = slides.length;
 ---
 
-<section id="inicio" class:list={['cena', capas.length > 0 && 'cena--estante']}>
-  <div class="cena-fundo" aria-hidden="true">
-    {hero.photo && <img src={hero.photo.src} alt="" width={hero.photo.width} height={hero.photo.height} loading="eager" fetchpriority="high" />}
+<section
+  id="inicio"
+  class="cena"
+  aria-roledescription="carrossel"
+  aria-label="Destaques da ARN"
+  data-slider
+>
+  <div class="cena-slides">
+    {
+      slides.map((s, i) => (
+        <div
+          class:list={['slide', `slide--${s.tipo}`, i === 0 && 'is-ativo']}
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} de ${total}`}
+          aria-hidden={i === 0 ? undefined : 'true'}
+          data-slide
+        >
+          {s.tipo === 'foto' ? (
+            <img
+              src={s.photo.src}
+              alt={s.photo.alt}
+              width={s.photo.width}
+              height={s.photo.height}
+              style={s.position ? `object-position:${s.position}` : undefined}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : undefined}
+              decoding="async"
+            />
+          ) : (
+            <div class="livros-palco">
+              <ul class="livros-capas">
+                {s.capas.map((c, j) => (
+                  <li class:list={[j === s.meio && 'is-meio', Math.abs(j - s.meio) > 1 && 'is-ponta']}>
+                    <img
+                      src={semFundo(c.cover)}
+                      alt={c.title}
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
+                  </li>
+                ))}
+              </ul>
+              <a href="#livros" class="livros-link" tabindex={i === 0 ? undefined : -1}>
+                <span>{s.label}</span>
+                <strong>
+                  {s.cta} <span aria-hidden="true">→</span>
+                </strong>
+              </a>
+            </div>
+          )}
+        </div>
+      ))
+    }
+    <div class="cena-veu" aria-hidden="true"></div>
   </div>
 
   <div class="container cena-texto">
@@ -32,76 +92,221 @@ const meio = Math.floor(capas.length / 2);
   </div>
 
   {
-    capas.length > 0 && (
-      <div class="container">
-        <div class="card estante">
-          <ul class="estante-capas">
-            {capas.map((c, i) => (
-              <li class:list={[i === meio && 'is-meio', Math.abs(i - meio) > 1 && 'is-ponta']}>
-                <img src={c.cover} alt={c.title} width="480" height="640" loading="eager" decoding="async" />
-              </li>
-            ))}
-          </ul>
-          <div class="estante-rodape">
-            <span class="estante-label">{hero.estante.label}</span>
-            <a href="#livros" class="btn btn-primary">
-              {hero.estante.cta} <span aria-hidden="true">→</span>
-            </a>
-          </div>
-          <Faixa height={6} />
-        </div>
+    total > 1 && (
+      <div class="cena-pontos" hidden data-pontos>
+        {slides.map((_, i) => (
+          <button
+            type="button"
+            aria-label={`Mostrar slide ${i + 1} de ${total}`}
+            aria-current={i === 0 ? 'true' : undefined}
+            data-ir={i}
+          />
+        ))}
       </div>
     )
   }
 </section>
 
+<script>
+  // Troca os slides (1º: 10 s, depois a cada 6 s). Pausa com mouse/foco dentro do hero e com a
+  // aba oculta; com "reduzir movimento" não troca sozinho (só pelos pontos).
+  const raiz = document.querySelector<HTMLElement>('[data-slider]');
+  const slides = raiz ? [...raiz.querySelectorAll<HTMLElement>('[data-slide]')] : [];
+  const pontosBox = raiz?.querySelector<HTMLElement>('[data-pontos]');
+
+  if (raiz && pontosBox && slides.length > 1) {
+    const pontos = [...pontosBox.querySelectorAll<HTMLButtonElement>('[data-ir]')];
+    let atual = 0;
+    let timer: number | undefined;
+    let pausado = false;
+
+    const mostrar = (n: number) => {
+      atual = (n + slides.length) % slides.length;
+      slides.forEach((s, i) => {
+        const ativo = i === atual;
+        s.classList.toggle('is-ativo', ativo);
+        if (ativo) s.removeAttribute('aria-hidden');
+        else s.setAttribute('aria-hidden', 'true');
+        s.querySelectorAll<HTMLElement>('a').forEach((a) => (a.tabIndex = ativo ? 0 : -1));
+        // Carrega a imagem lazy antes de aparecer.
+        s.querySelectorAll('img').forEach((img) => (img.loading = 'eager'));
+      });
+      pontos.forEach((p, i) => p.toggleAttribute('aria-current', i === atual));
+    };
+
+    // O 1º slide fica mais tempo na abertura; depois troca a cada 6 s.
+    const reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const avancar = () => {
+      if (!pausado && !document.hidden) mostrar(atual + 1);
+    };
+    const iniciar = (primeiro = 6000) => {
+      if (reduzir) return;
+      window.clearTimeout(timer);
+      window.clearInterval(timer);
+      timer = window.setTimeout(() => {
+        avancar();
+        timer = window.setInterval(avancar, 6000);
+      }, primeiro);
+    };
+
+    pontos.forEach((p) =>
+      p.addEventListener('click', () => {
+        mostrar(Number(p.dataset.ir));
+        iniciar();
+      }),
+    );
+    raiz.addEventListener('mouseenter', () => (pausado = true));
+    raiz.addEventListener('mouseleave', () => (pausado = false));
+    raiz.addEventListener('focusin', () => (pausado = true));
+    raiz.addEventListener('focusout', () => (pausado = false));
+
+    pontosBox.hidden = false;
+    iniciar(10000);
+  }
+</script>
+
 <style>
   .cena {
     position: relative;
     isolation: isolate;
-    /* Quanto da estante fica abaixo da foto, sobre o branco. */
-    --sobra: 9rem;
+    overflow: hidden;
+    background: var(--floresta);
+    min-height: clamp(34rem, 78vh, 44rem);
+    display: flex;
+    align-items: center;
   }
 
-  .cena-fundo {
+  /* ---------- Slides (fundo) ---------- */
+  .cena-slides {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: var(--floresta);
   }
 
-  .cena--estante .cena-fundo {
-    bottom: var(--sobra);
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 1s ease,
+      visibility 0s linear 1s;
   }
 
-  .cena-fundo img {
+  .slide.is-ativo {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 1s ease;
+  }
+
+  .slide--foto img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 40%;
   }
 
-  /* Véu: sólido sob o texto, abre para a direita; base escurece para a estante. */
-  .cena-fundo::after {
-    content: '';
+  /* Véu: sólido sob o texto, abre para a direita. */
+  .cena-veu {
     position: absolute;
     inset: 0;
+    pointer-events: none;
     background:
-      linear-gradient(180deg, rgb(10 61 38 / 0) 55%, rgb(10 61 38 / 0.55) 100%),
-      linear-gradient(90deg, rgb(10 61 38 / 0.94) 0%, rgb(10 61 38 / 0.82) 42%, rgb(10 61 38 / 0.35) 75%, rgb(10 61 38 / 0.2) 100%);
+      linear-gradient(180deg, rgb(10 61 38 / 0) 60%, rgb(10 61 38 / 0.5) 100%),
+      linear-gradient(90deg, rgb(10 61 38 / 0.94) 0%, rgb(10 61 38 / 0.82) 40%, rgb(10 61 38 / 0.3) 72%, rgb(10 61 38 / 0.15) 100%);
   }
 
+  /* Slide de livros: luz quente atrás das capas, à direita. */
+  .slide--livros {
+    background:
+      radial-gradient(ellipse 45% 60% at 74% 55%, rgb(254 200 32 / 0.28), transparent 70%),
+      radial-gradient(ellipse 70% 80% at 74% 60%, rgb(6 167 87 / 0.35), transparent 75%),
+      var(--floresta);
+  }
+
+  .livros-palco {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    right: 0;
+    z-index: 1; /* acima do véu, para o link ser clicável */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem clamp(1.5rem, 4vw, 4rem) 4rem 1rem;
+  }
+
+  .livros-capas {
+    list-style: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    max-width: 40rem;
+  }
+
+  .livros-capas li {
+    flex: 0 1 8.5rem;
+    margin-inline: -0.6rem;
+    filter: drop-shadow(0 18px 22px rgb(0 0 0 / 0.35));
+  }
+
+  .livros-capas li.is-meio {
+    flex-basis: 11rem;
+    z-index: 2;
+  }
+
+  .livros-capas li:not(.is-meio):not(.is-ponta) {
+    z-index: 1;
+  }
+
+  .livros-capas img {
+    width: 100%;
+    height: auto;
+  }
+
+  .livros-link {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem 0.75rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius);
+    background: rgb(255 255 255 / 0.1);
+    border: 1px solid rgb(255 255 255 / 0.25);
+    color: var(--branco);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    text-align: center;
+  }
+
+  .livros-link strong {
+    font-family: var(--font-title);
+    color: var(--amarelo);
+  }
+
+  .livros-link:hover {
+    background: rgb(255 255 255 / 0.18);
+    color: var(--branco);
+  }
+
+  /* ---------- Texto (fixo) ---------- */
   .cena-texto {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 1.25rem;
-    padding-block: clamp(3.5rem, 8vw, 6rem) clamp(2.5rem, 5vw, 3.5rem);
+    padding-block: clamp(3.5rem, 8vw, 5.5rem) clamp(4rem, 8vw, 5.5rem);
     color: var(--branco);
+    pointer-events: none;
   }
 
   .cena-texto > * {
-    max-width: 38rem;
+    max-width: 36rem;
+    pointer-events: auto;
   }
 
   .cena-eyebrow {
@@ -152,75 +357,126 @@ const meio = Math.floor(capas.length / 2);
     }
   }
 
-  /* ---------- Estante ---------- */
-  .estante {
-    overflow: hidden;
-  }
-
-  .estante-capas {
-    list-style: none;
+  /* ---------- Pontos ---------- */
+  .cena-pontos {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 1.5rem;
     display: flex;
     justify-content: center;
-    align-items: flex-end;
-    gap: clamp(0.5rem, 2vw, 1.75rem);
-    padding: 1.75rem 1.5rem 0;
-    background: linear-gradient(180deg, var(--branco) 70%, var(--papel) 100%);
+    gap: 0.25rem;
   }
 
-  .estante-capas li {
-    flex: 0 1 9.5rem;
+  .cena-pontos[hidden] {
+    display: none;
   }
 
-  .estante-capas li.is-meio {
-    flex-basis: 11.5rem;
+  .cena-pontos button {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
   }
 
-  .estante-capas img {
-    width: 100%;
-    /* Capas têm fundo branco: multiply some com ele sobre o gradiente. */
-    mix-blend-mode: multiply;
+  .cena-pontos button::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.45);
+    transition:
+      width 0.3s ease,
+      background-color 0.3s ease;
   }
 
-  .estante-rodape {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.25rem 1.75rem 1.5rem;
-    border-top: 1px solid var(--borda);
+  .cena-pontos button[aria-current]::before {
+    width: 28px;
+    background: var(--amarelo);
   }
 
-  .estante-label {
-    font-family: var(--font-title);
-    font-weight: 700;
-    font-size: 1.125rem;
-    color: var(--tinta);
+  @media (max-width: 900px) {
+    .livros-palco {
+      left: 40%;
+    }
   }
 
+  /* Mobile: texto em cima, faixa livre embaixo (--banda) onde a foto/capas
+     aparecem. A foto fica ancorada no fundo, com o terço de cima (rostos)
+     dentro da banda. */
   @media (max-width: 700px) {
     .cena {
-      --sobra: 6rem;
+      --banda: 16.5rem;
+      align-items: flex-start;
+      min-height: 0;
     }
 
-    .cena-fundo::after {
-      background: linear-gradient(180deg, rgb(10 61 38 / 0.8) 0%, rgb(10 61 38 / 0.88) 100%);
+    .cena-texto {
+      padding-bottom: var(--banda);
+    }
+
+    .slide--foto img {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: calc(var(--banda) * 1.45);
+      -webkit-mask-image: linear-gradient(180deg, transparent, #000 25%);
+      mask-image: linear-gradient(180deg, transparent, #000 25%);
+    }
+
+    .cena-veu {
+      background: linear-gradient(
+        180deg,
+        rgb(10 61 38 / 0.92) 0%,
+        rgb(10 61 38 / 0.92) calc(100% - var(--banda) - 1rem),
+        rgb(10 61 38 / 0.2) calc(100% - var(--banda) + 4rem),
+        rgb(10 61 38 / 0.45) 100%
+      );
+    }
+
+    .slide--livros {
+      background:
+        radial-gradient(ellipse 80% 30% at 50% 88%, rgb(254 200 32 / 0.25), transparent 70%),
+        var(--floresta);
+    }
+
+    .livros-palco {
+      top: auto;
+      left: 0;
+      height: var(--banda);
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding: 0 1rem 3.75rem;
+    }
+
+    .livros-capas {
+      max-width: 15rem;
+    }
+
+    .livros-capas li.is-ponta {
+      display: none;
+    }
+
+    .livros-link span {
+      display: none;
+    }
+
+    .livros-link {
+      padding: 0.4rem 0.9rem;
     }
 
     .cena-ctas .btn {
       flex: 1 1 auto;
     }
+  }
 
-    .estante-capas li.is-ponta {
-      display: none;
-    }
-
-    .estante-rodape {
-      padding-inline: 1.25rem;
-    }
-
-    .estante-rodape .btn {
-      flex: 1 1 auto;
+  @media (prefers-reduced-motion: reduce) {
+    .slide,
+    .slide.is-ativo {
+      transition: none;
     }
   }
 </style>

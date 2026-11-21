@@ -25,22 +25,42 @@ export const hero = {
   lead: 'A Associação Educacional e Cultural Risale-i Nur reúne pessoas interessadas em leitura, reflexão e formação humana, com grupos de estudo, cursos e eventos abertos à comunidade.',
   /** Linha de fatos curtos sob os botões. */
   facts: ['Desde 2021', 'São Paulo – SP', 'Domingos, 10h–18h30'],
-  photo: {
-    src: '/fotos/aula-risale-domingo.jpg',
-    alt: 'Grupo lendo livros da coleção Risale-i Nur no salão da sede',
-    width: 960,
-    height: 720,
-  } as Photo | null,
-  photoHint: 'Foto: grupo de estudo na sede',
   /**
-   * Estante sob o hero (HeroCena): títulos de `livros.itens`, na ordem em que
-   * aparecem; o do meio fica em destaque. Lista vazia = sem estante.
+   * Slides do hero, na ordem. O texto acima fica fixo; só o fundo troca
+   * (o 1º fica 10 s, depois a cada 6 s; pausa com o mouse em cima; sem autoplay com "reduzir
+   * movimento"; sem JS fica o 1º). `foto`: imagem de fundo sob o véu verde —
+   * de preferência ≥1920 px de largura. `livros`: capas de `livros.itens`
+   * pelo título, sem fundo, em `public/livros/sem-fundo/<mesmo nome>.webp`
+   * (geradas a partir das capas .jpg — gerar de novo ao trocar um título).
    */
-  estante: {
-    label: 'A coleção Risale-i Nur em português',
-    cta: 'Ver a coleção',
-    titulos: ['Os Lampejos', 'As Cartas', 'Alcorão', 'O Sinal Supremo', 'Os Frutos da Fé'],
-  },
+  slides: [
+    {
+      tipo: 'livros',
+      titulos: ['Os Lampejos', 'As Cartas', 'Alcorão', 'O Sinal Supremo', 'Os Frutos da Fé'],
+      label: 'A coleção Risale-i Nur em português',
+      cta: 'Ver a coleção',
+    },
+    {
+      tipo: 'foto',
+      photo: {
+        src: '/fotos/comunidade-sede.jpg',
+        alt: 'Membros da comunidade, adultos e crianças, reunidos no salão da sede',
+        width: 1280,
+        height: 960,
+      },
+      position: '50% 38%',
+    },
+    {
+      tipo: 'foto',
+      photo: {
+        src: '/fotos/aula-risale-domingo.jpg',
+        alt: 'Grupo lendo livros da coleção Risale-i Nur no salão da sede',
+        width: 960,
+        height: 720,
+      },
+      position: '50% 40%',
+    },
+  ] as HeroSlide[],
 };
 
 export const sobre = {
@@ -59,12 +79,22 @@ export const sobre = {
   photoHint: 'Foto: fachada da sede',
 };
 
+export type HeroSlide =
+  | { tipo: 'foto'; photo: Photo; position?: string }
+  | { tipo: 'livros'; titulos: string[]; label: string; cta: string };
+
 export type Photo = {
   /** Caminho em /public, ex.: '/fotos/aula-domingo.jpg' */
   src: string;
   alt: string;
   width: number;
   height: number;
+  /**
+   * Só na galeria: 'contain' mostra a foto inteira no quadro (para fotos em
+   * pé, como a placa), com `bg` preenchendo as sobras. Padrão: corta (cover).
+   */
+  fit?: 'contain';
+  bg?: string;
 };
 
 /** Cartões de "O que fazemos". `tone` escolhe a cor do ícone. */
@@ -202,7 +232,9 @@ export const galeria: Photo[] = [
     src: '/fotos/placa-sede.jpg',
     alt: 'Placa na entrada da sede',
     width: 1200,
-    height: 900,
+    height: 1367,
+    fit: 'contain',
+    bg: '#bead96', // cor da parede ao redor da placa
   },
 ];
 
@@ -292,6 +324,24 @@ export const contact = {
 };
 
 export const whatsappHref = `https://wa.me/${contact.whatsapp}`;
+
+/**
+ * Formulário de contato (Netlify Forms). O Netlify detecta o <form> no deploy
+ * e guarda os envios em Site → Forms → "contato". Para receber por e-mail:
+ * Site configuration → Notifications → Emails and webhooks → Form submission
+ * notifications → e-mail de destino (a caixa da KingHost). O "Responder" do
+ * e-mail vai para quem escreveu (campo `email`). Só funciona servido pelo
+ * Netlify — em `npm run dev` o envio falha e mostra o erro.
+ */
+export const formulario = {
+  eyebrow: 'Fale conosco',
+  title: 'Envie uma mensagem',
+  text: 'Tem alguma dúvida sobre as aulas, os livros ou uma visita à sede? Escreva para nós e respondemos por e-mail.',
+  assuntos: ['Visita à sede', 'Aulas e grupos de estudo', 'Livros', 'Outro assunto'],
+  privacidade: 'Usamos seus dados apenas para responder a esta mensagem.',
+  sucesso: 'Mensagem enviada. Obrigado! Responderemos assim que possível.',
+  erro: 'Não foi possível enviar agora. Tente de novo ou fale conosco pelo WhatsApp.',
+};
 
 /**
  * Feira do livro. A faixa no topo da home só aparece entre `showFrom` e `end`

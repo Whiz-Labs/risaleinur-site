@@ -23,6 +23,7 @@ import { galeria, contact } from '../config';
                   height={p.height}
                   loading="lazy"
                   decoding="async"
+                  style={p.fit ? `object-fit:${p.fit};background:${p.bg ?? 'var(--placeholder)'}` : undefined}
                 />
                 <figcaption>{p.alt}</figcaption>
               </figure>

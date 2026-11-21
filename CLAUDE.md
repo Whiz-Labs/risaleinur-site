@@ -40,14 +40,35 @@ empty `galeria` → "em breve" note; `photo: null` → labelled placeholder (`Fo
 line; empty `contact.street` / `email` / `mapsEmbed` → those lines/the map are omitted.
 
 Adding photos: put files in `public/fotos/` and add `{ src, alt, width, height }` objects
-(type `Photo`) to `hero.photo`, `sobre.photo`, `feira.photo` or `galeria`.
+(type `Photo`) to `hero.slides`, `sobre.photo`, `feira.photo` or `galeria`.
+Gallery tiles crop to 220px high (cover); for a portrait photo that must stay whole, set
+`fit: 'contain'` and a `bg` colour on that `galeria` item (used for the entrance sign).
+`placa-sede.jpg` was made from the full-resolution original in `.claude/images/`
+(perspective mostly corrected from the sign's four detected edges, leaving ~30% of the
+original angle; aspect set so the symbol matches `simbolo.svg`; slightly warm white
+balance, no extra sharpening). A fully frontal, sharpened, pure-white version looked
+like a digital mockup, so keep edits on real photos light.
 Documents: PDFs in `public/docs/`, set `file: '/docs/x.pdf'`.
 
-**Hero** (`Hero.astro`): `hero.photo` full-bleed under a `--floresta` veil (text in white,
-yellow eyebrow/button), then a "estante" card with covers from `livros`, picked by title
-in `hero.estante.titulos` (middle one enlarged; empty list → no card). The card sits half
-over the photo, half over white. The current photo is only 960px wide; replace it with a
-≥1920px landscape shot when the association supplies one.
+**Hero** (`Hero.astro`): background slider from `hero.slides`. The text stays fixed on the
+left over a `--floresta` veil; only the background changes (crossfade; the first slide stays 10 s, then every 6 s; paused on
+hover/focus and in a hidden tab, no autoplay with reduced motion, first slide only without
+JS). Slide types: `foto` (photo, ideally ≥1920px wide; on mobile it is anchored to a free
+band under the text) and `livros` (covers from `livros` by title, linking to `#livros`).
+The `livros` slide uses background-less covers in `public/livros/sem-fundo/<name>.webp`,
+derived from the `.jpg` of the same name. They were made with a one-off sharp script: a
+flood fill from the image border over light neutral pixels, then colour-to-alpha on that
+region only, so the cover's own whites (pages, banners) stay opaque. Only the five used
+titles were generated; adding a title to the slide means generating its file too. The full
+collection lives in the Livros section, not in the hero.
+
+**Contact form** (`ContatoForm.astro`, inside `Contato.astro`; copy in `formulario`):
+Netlify Forms (`data-netlify`, form name `contato`, honeypot `bot-field`). With JS it posts
+by `fetch` and shows the result inline; without JS Netlify redirects to `/obrigado`
+(`noindex`). Submissions only work when served by Netlify, so a local submit shows the error.
+E-mail delivery is configured in the Netlify UI (Form submission notifications), not in code.
+DNS and e-mail for the domain are at KingHost. When pointing the domain to Netlify, change
+only the A/CNAME records and keep the MX/SPF records, or e-mail stops.
 
 **Tokens** are in `BaseLayout.astro` `:root`, taken from the original logo file: green
 #06A757, yellow #FEC820, navy #04287C (`--azul`).

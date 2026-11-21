@@ -1,0 +1,250 @@
+---
+// Formulário de contato via Netlify Forms (ver `formulario` em config.ts).
+// Com JS: envia por fetch e mostra o resultado no lugar. Sem JS: POST normal
+// e o Netlify redireciona para /obrigado.
+import Faixa from './Faixa.astro';
+import Icon from './Icon.astro';
+import { formulario, whatsappHref } from '../config';
+---
+
+<div class="card form-card">
+  <div class="form-intro">
+    <span class="eyebrow">{formulario.eyebrow}</span>
+    <h3>{formulario.title}</h3>
+    <p>{formulario.text}</p>
+  </div>
+
+  <form
+    name="contato"
+    method="POST"
+    action="/obrigado"
+    data-netlify="true"
+    netlify-honeypot="bot-field"
+    class="form"
+    id="form-contato"
+  >
+    <input type="hidden" name="form-name" value="contato" />
+    <input type="hidden" name="subject" value="Mensagem pelo site – %{formName} (%{submissionId})" />
+    <p class="visually-hidden" aria-hidden="true">
+      <label>Não preencha: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+    </p>
+
+    <div class="form-linha">
+      <label class="campo">
+        <span>Nome</span>
+        <input type="text" name="nome" required autocomplete="name" maxlength="120" />
+      </label>
+      <label class="campo">
+        <span>E-mail</span>
+        <input type="email" name="email" required autocomplete="email" maxlength="160" />
+      </label>
+    </div>
+
+    <div class="form-linha">
+      <label class="campo">
+        <span>Telefone / WhatsApp <em>(opcional)</em></span>
+        <input type="tel" name="telefone" autocomplete="tel" maxlength="40" />
+      </label>
+      <label class="campo">
+        <span>Assunto</span>
+        <select name="assunto">
+          {formulario.assuntos.map((a) => <option>{a}</option>)}
+        </select>
+      </label>
+    </div>
+
+    <label class="campo">
+      <span>Mensagem</span>
+      <textarea name="mensagem" rows="5" required maxlength="4000"></textarea>
+    </label>
+
+    <div class="form-rodape">
+      <p class="form-privacidade">{formulario.privacidade}</p>
+      <button type="submit" class="btn btn-primary">
+        Enviar mensagem <Icon name="arrow" size={18} />
+      </button>
+    </div>
+
+    <p class="form-status form-status--ok" data-ok hidden role="status">{formulario.sucesso}</p>
+    <p class="form-status form-status--erro" data-erro hidden role="alert">
+      {formulario.erro} <a href={whatsappHref} target="_blank" rel="noopener">Abrir WhatsApp</a>
+    </p>
+  </form>
+  <Faixa height={6} class="form-faixa" />
+</div>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#form-contato');
+  if (form) {
+    const ok = form.querySelector<HTMLElement>('[data-ok]')!;
+    const erro = form.querySelector<HTMLElement>('[data-erro]')!;
+    const botao = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      ok.hidden = true;
+      erro.hidden = true;
+      botao.disabled = true;
+      try {
+        const body = new URLSearchParams(new FormData(form) as unknown as Record<string, string>);
+        const res = await fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString(),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        ok.hidden = false;
+      } catch {
+        erro.hidden = false;
+      } finally {
+        botao.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .form-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem 3rem;
+    margin-top: 3rem;
+    padding: clamp(1.5rem, 4vw, 2.75rem) clamp(1.25rem, 4vw, 2.75rem) calc(clamp(1.5rem, 4vw, 2.75rem) + 6px);
+  }
+
+  .form-intro {
+    flex: 1 1 16rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .form-intro h3 {
+    font-size: 1.625rem;
+    font-weight: 800;
+  }
+
+  .form-intro p {
+    color: var(--texto-suave);
+  }
+
+  .form {
+    flex: 3 1 30rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.125rem;
+  }
+
+  .form-linha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.125rem;
+  }
+
+  .form-linha .campo {
+    flex: 1 1 14rem;
+  }
+
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+
+  .campo > span {
+    font-family: var(--font-title);
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--tinta);
+  }
+
+  .campo em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--texto-mudo);
+  }
+
+  .campo input,
+  .campo select,
+  .campo textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.7rem 0.9rem;
+    border: 1.5px solid #cdd6d0;
+    border-radius: var(--radius);
+    background: var(--branco);
+    font: inherit;
+    font-size: 1rem;
+    color: var(--texto);
+  }
+
+  .campo textarea {
+    resize: vertical;
+    min-height: 8rem;
+  }
+
+  .campo input:focus,
+  .campo select:focus,
+  .campo textarea:focus {
+    outline: none;
+    border-color: var(--verde-escuro);
+    box-shadow: 0 0 0 3px var(--verde-tinta);
+  }
+
+  .form-rodape {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .form-privacidade {
+    font-size: 0.875rem;
+    color: var(--texto-mudo);
+  }
+
+  .form button[disabled] {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+  .form-status {
+    padding: 0.9rem 1.1rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .form-status--ok {
+    background: var(--verde-tinta);
+    color: var(--verde-hover);
+  }
+
+  .form-status--erro {
+    background: #fdecea;
+    color: #8c1d18;
+  }
+
+  .form-status--erro a {
+    color: inherit;
+  }
+
+  .form-card :global(.form-faixa) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  @media (max-width: 600px) {
+    .form-rodape .btn {
+      flex: 1 1 100%;
+    }
+  }
+</style>

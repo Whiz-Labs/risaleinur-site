@@ -25,8 +25,12 @@ export const hero = {
   lead: 'A Associação Educacional e Cultural Risale-i Nur reúne pessoas interessadas em leitura, reflexão e formação humana, com grupos de estudo, cursos e eventos abertos à comunidade.',
   /** Linha de fatos curtos sob os botões. */
   facts: ['Desde 2021', 'São Paulo – SP', 'Domingos, 10h–18h30'],
-  /** TODO: foto real (grupo de estudo na sede). null = placeholder. */
-  photo: null as Photo | null,
+  photo: {
+    src: '/fotos/aula-risale-domingo.jpg',
+    alt: 'Grupo lendo livros da coleção Risale-i Nur no salão da sede',
+    width: 960,
+    height: 720,
+  } as Photo | null,
   photoHint: 'Foto: grupo de estudo na sede',
 };
 
@@ -37,8 +41,12 @@ export const sobre = {
     'Fundada em 2021 em São Paulo, a ARN é uma associação privada sem fins lucrativos. Promovemos a educação, a leitura e a convivência por meio do estudo da coleção Risale-i Nur, comentário do Alcorão escrito por Bediüzzaman Said Nursi.',
     'Aos domingos, recebemos famílias para um dia de aulas, leitura, conversa e atividades para crianças e adultos. Todos são bem-vindos.',
   ],
-  /** TODO: foto real (fachada da sede). */
-  photo: null as Photo | null,
+  photo: {
+    src: '/fotos/fachada-sede.jpg',
+    alt: 'Fachada da sede da ARN, com a placa da associação e a porta de entrada',
+    width: 968,
+    height: 711,
+  } as Photo | null,
   photoHint: 'Foto: fachada da sede',
 };
 
@@ -130,8 +138,80 @@ export const documentos: { title: string; file: string | null }[] = [
   { title: 'Ata de eleição da diretoria', file: null },
 ];
 
-/** TODO: fotos reais. Lista vazia = a galeria mostra um aviso "em breve". */
-export const galeria: Photo[] = [];
+/** Fotos reais da sede. Lista vazia = a galeria mostra um aviso "em breve". */
+export const galeria: Photo[] = [
+  {
+    src: '/fotos/leitura-em-grupo.jpg',
+    alt: 'Aula de Risale-i Nur',
+    width: 960,
+    height: 720,
+  },
+  {
+    src: '/fotos/comunidade-sede.jpg',
+    alt: 'Encontro de domingo na sede',
+    width: 1280,
+    height: 960,
+  },
+  {
+    src: '/fotos/criancas-tenis-de-mesa.jpg',
+    alt: 'Esporte no domingo: tênis de mesa',
+    width: 737,
+    height: 553,
+  },
+  {
+    src: '/fotos/placa-sede.jpg',
+    alt: 'Placa na entrada da sede',
+    width: 1200,
+    height: 900,
+  },
+];
+
+/**
+ * Seção "Livros". Capas em `public/livros/` (3:4, fundo branco). Sem
+ * descrições inventadas: só título, subtítulo e autor que estão na capa.
+ * Lista vazia = a seção some.
+ */
+const autor = 'Bediüzzaman Said Nursi';
+
+export const livros: {
+  eyebrow: string;
+  title: string;
+  text: string;
+  cta: string;
+  itens: { title: string; subtitle?: string; author: string; cover: string }[];
+} = {
+  eyebrow: 'Livros',
+  title: 'A coleção Risale-i Nur em português',
+  text: 'Alguns títulos da coleção de Bediüzzaman Said Nursi traduzidos para o português, e o Alcorão com tradução portuguesa.',
+  cta: 'Perguntar sobre os livros',
+  itens: [
+    { title: 'As Cartas', author: autor, cover: '/livros/as-cartas.jpg' },
+    { title: 'Os Lampejos', author: autor, cover: '/livros/os-lampejos.jpg' },
+    { title: 'O Sinal Supremo', author: autor, cover: '/livros/o-sinal-supremo.jpg' },
+    {
+      title: 'Os Milagres do Profeta Mohammad',
+      subtitle: 'O Tratado dos Milagres do Alcorão',
+      author: autor,
+      cover: '/livros/os-milagres-do-profeta-mohammad.jpg',
+    },
+    {
+      title: 'A Ressurreição e a Outra Vida',
+      subtitle: 'Imortalidade do Espírito',
+      author: autor,
+      cover: '/livros/a-ressurreicao-e-a-outra-vida.jpg',
+    },
+    { title: 'As Curtas Palavras', author: autor, cover: '/livros/as-curtas-palavras.jpg' },
+    { title: 'Os Frutos da Fé', author: autor, cover: '/livros/os-frutos-da-fe.jpg' },
+    { title: 'A Fé e o Ser Humano', author: autor, cover: '/livros/a-fe-e-o-ser-humano.jpg' },
+    { title: 'Mensagem ao Enfermo', author: autor, cover: '/livros/mensagem-ao-enfermo.jpg' },
+    {
+      title: 'Alcorão',
+      subtitle: 'e sua tradução portuguesa',
+      author: '',
+      cover: '/livros/alcorao.jpg',
+    },
+  ],
+};
 
 export const contact = {
   /**
@@ -166,7 +246,7 @@ export const contact = {
 export const whatsappHref = `https://wa.me/${contact.whatsapp}`;
 
 /**
- * Feira do livro. A faixa no topo da home só aparece entre `start` e `end`
+ * Feira do livro. A faixa no topo da home só aparece entre `showFrom` e `end`
  * (datas no fuso da sede, conferidas NO NAVEGADOR — um build estático
  * congelaria a decisão no dia do deploy). A página /feira continua no ar
  * depois, porque os QR codes impressos apontam para ela.
@@ -177,7 +257,8 @@ export const feira = {
   name: 'Bienal do Livro Rio 2027',
   shortName: 'Bienal do Livro Rio',
   /** AAAA-MM-DD, inclusive. A faixa aparece alguns dias antes (`showFrom`). */
-  showFrom: '2027-08-27',
+  // TODO: provisório para ver a faixa — voltar para '2027-08-27'.
+  showFrom: '2026-11-20',
   start: '2027-09-03',
   end: '2027-09-12',
   dateLabel: '3 a 12 de setembro de 2027',
@@ -185,6 +266,19 @@ export const feira = {
   stand: '',
   venue: '',
   city: 'Rio de Janeiro – RJ',
-  /** TODO: foto do estande / dos livros. */
-  photo: null as Photo | null,
+  /** TODO: trocar pela foto do estande quando houver. */
+  photo: {
+    src: '/fotos/livros-colecao.jpg',
+    alt: 'Livros da coleção Risale-i Nur em português: Os Lampejos, As Cartas e Os Frutos da Fé',
+    width: 1200,
+    height: 485,
+  } as Photo | null,
+  /**
+   * Textos de /feira depois de `end` (trocados no navegador). O bloco
+   * "Na feira" some; o resto da página continua igual.
+   */
+  depois: {
+    eyebrow: 'Associação sem fins lucrativos',
+    title: 'Que bom ter você por aqui!',
+  },
 };

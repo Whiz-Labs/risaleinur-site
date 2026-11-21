@@ -1,7 +1,8 @@
 ---
 // Destino do QR code impresso no estande. Pensada para celular. Continua no
-// ar depois da feira (os QR impressos não somem): o texto de boas-vindas
-// serve nos dois casos.
+// ar depois da feira (os QR impressos não somem): passado `feira.end`, o
+// script no fim troca o título por `feira.depois` e esconde "Na feira".
+// Sem JS fica a versão da feira.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Faixa from '../components/Faixa.astro';
 import Foto from '../components/Foto.astro';
@@ -11,6 +12,7 @@ import { site, feira, instituicao, contact, whatsappHref } from '../config';
 const stand = feira.stand ? `Estande ${feira.stand}` : 'Estande a confirmar';
 const local = [stand, feira.venue, feira.city].filter(Boolean).join(' · ');
 const year = new Date().getFullYear();
+const { address } = contact;
 ---
 
 <BaseLayout
@@ -18,7 +20,7 @@ const year = new Date().getFullYear();
   description={`Que bom ter você no nosso estande! Conheça a ${site.fullName}.`}
 >
   <Faixa />
-  <main id="conteudo" class="feira">
+  <main id="conteudo" class="feira" data-end={feira.end} data-tz={site.timeZone}>
     <a href="/" class="feira-logo">
       <img
         src="/logo-horizontal.svg"
@@ -29,8 +31,12 @@ const year = new Date().getFullYear();
     </a>
 
     <div class="feira-intro">
-      <span class="eyebrow">{feira.name}{feira.stand && ` · Estande ${feira.stand}`}</span>
-      <h1>Que bom ter você no nosso estande!</h1>
+      <span class="eyebrow" data-durante>
+        {feira.name}{feira.stand && ` · Estande ${feira.stand}`}
+      </span>
+      <span class="eyebrow" data-depois hidden>{feira.depois.eyebrow}</span>
+      <h1 data-durante>Que bom ter você no nosso estande!</h1>
+      <h1 data-depois hidden>{feira.depois.title}</h1>
       <p class="lead">
         Somos a ARN, uma associação sem fins lucrativos dedicada à educação, à leitura e à
         cultura a partir da coleção Risale-i Nur.
@@ -52,7 +58,7 @@ const year = new Date().getFullYear();
       </a>
     </div>
 
-    <div class="feira-info">
+    <div class="feira-info" data-durante>
       <h2>Na feira</h2>
       <p><Icon name="calendar" size={20} /><span>{feira.shortName} · {feira.dateLabel}</span></p>
       <p><Icon name="pin" size={20} /><span>{local}</span></p>
@@ -68,8 +74,33 @@ const year = new Date().getFullYear();
       <Faixa />
     </div>
   </main>
-  <footer class="feira-footer">© {year} {site.name} · risaleinur.org.br</footer>
+  <footer class="feira-footer">
+    <span>{instituicao.razaoSocial} · CNPJ {instituicao.cnpj}</span>
+    <span>
+      {address.street && `${address.street} – `}{address.district}, {address.city} – {address.state}
+      · CEP {address.zip}
+    </span>
+    <span>© {year} {site.name} · risaleinur.org.br</span>
+  </footer>
 </BaseLayout>
+
+<script>
+  // Mesma regra da faixa do Header: "hoje" é o de São Paulo, AAAA-MM-DD.
+  const main = document.querySelector<HTMLElement>('main.feira');
+  if (main) {
+    const { end = '', tz = 'America/Sao_Paulo' } = main.dataset;
+    const today = new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+    if (end && today > end) {
+      main.querySelectorAll<HTMLElement>('[data-durante]').forEach((el) => (el.hidden = true));
+      main.querySelectorAll<HTMLElement>('[data-depois]').forEach((el) => (el.hidden = false));
+    }
+  }
+</script>
 
 <style>
   .feira {
@@ -184,5 +215,8 @@ const year = new Date().getFullYear();
     padding: 1.5rem 1.375rem;
     font-size: 0.8125rem;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
   }
 </style>
